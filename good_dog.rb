@@ -1,14 +1,29 @@
 # good_dog.rb
 
 
-class GoodDog
+class Animal
+  attr_accessor :name
+
+  def initialize(name)
+    @name = name
+  end
+  def speak
+    "Hello!"
+  end
+end
+
+class GoodDog < Animal
   attr_accessor :name, :height, :weight
 
-  def initialize(n, h, w)
-    self.name   = n
-    self.height = h
-    self.weight = w
+  def initialize(color)
+    super
+    @color = color
   end
+  # def initialize(n, h, w)
+  #   self.name   = n
+  #   self.height = h
+  #   self.weight = w
+  # end
 
   def change_info(n, h, w)
     self.name   = n
@@ -23,10 +38,27 @@ class GoodDog
   def what_is_self
     self
   end
+
+  def speak
+    super + " from GoodDog class!"
+    # "#{self.name} says Arf!"
+  end
 end
 
-sparky = GoodDog.new('Sparky', '12 inches', '10 lbs')
-p sparky.what_is_self
+class Cat < Animal
+end
+
+sparky = GoodDog.new("Brown")
+p sparky.name
+
+# sparky = GoodDog.new("Sparky", 12, 10)
+# paws = Cat.new
+
+# p sparky.speak
+# p paws.speak
+
+# sparky = GoodDog.new('Sparky', '12 inches', '10 lbs')
+# p sparky.what_is_self
 
 # class GoodDog
 #   @@number_of_dogs = 0
