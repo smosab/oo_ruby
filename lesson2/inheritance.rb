@@ -1,3 +1,9 @@
+module  Swim
+  def swim
+    'swimming!'
+  end
+end
+
 class Pet
   def run
     'running!'
@@ -11,10 +17,6 @@ end
 class Dog < Pet
   def speak
     'bark!'
-  end
-
-  def swim
-    'swimming!'
   end
 
   def fetch
@@ -38,14 +40,26 @@ end
 # puts sparky.swim
 # puts sparky.speak
 
+class Fish
+  include Swim
+  # ... rest of class omitted
+end
+
+
 class Cat < Pet
+  include Swim
+
   def speak
     "meow!"
   end
 end
 
-wiskers = Cat.new
-puts wiskers.run
-puts wiskers.speak
+# wiskers = Cat.new
+# puts wiskers.run
+# puts wiskers.speak
 
-p Bulldog.ancestors
+# p Bulldog.ancestors
+
+blue = Fish.new
+puts blue.swim
+p Fish.ancestors
