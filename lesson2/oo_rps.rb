@@ -37,10 +37,11 @@ class Move
 end
 
 class Player
-  attr_accessor :move, :name
+  attr_accessor :move, :name, :score
 
   def initialize
     set_name
+    @score = 0
   end
 end
 
@@ -87,7 +88,7 @@ class RPSGame
   end
 
   def display_welcome_message
-    puts 'Welcome to Rock, Paper, Scissors!'
+    puts 'Welcome to Rock, Paper, Scissors! First player to reach 10 wins!'
   end
 
   def display_goodbye_message
@@ -99,39 +100,63 @@ class RPSGame
     puts "#{computer.name} chose #{computer.move}"
   end
 
+  def keep_score(player)
+    if player == "human"
+      human.score += 1
+    else
+      computer.score += 1
+    end
+  end
+
   def display_winner
     if human.move > computer.move
       puts "#{human.name} won!"
+      keep_score("human")
     elsif human.move < computer.move
       puts "#{computer.name} won!"
+      keep_score("computer")
     else
       puts "It's a tie!"
     end
+    puts "Player score: #{human.score} Computer score: #{computer.score} "
   end
 
   def play_again?
     answer = nil
     loop do
+      puts "#{scored_ten?} wins!"
       puts 'Would you like to play again? (y/n)?'
       answer = gets.chomp
       break if %w(y n).include? answer.downcase
       puts 'Sorry, must be y or n'
     end
+    human.score = 0
+    computer.score = 0
     return false if answer.downcase == 'n'
     return true if answer.downcase == 'y'
   end
 
+  def scored_ten?
+    if human.score == 5
+      return human.name
+    elsif computer.score == 5
+      return computer.name
+    end
+  end
+
   def play
     display_welcome_message
-
+  loop do
     loop do
       human.choose
       computer.choose
       display_moves
       display_winner
-      break unless play_again?
+      break if scored_ten?
     end
-    display_goodbye_message
+    break unless play_again?
+  end
+  display_goodbye_message
   end
 end
 
