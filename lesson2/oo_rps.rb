@@ -1,7 +1,8 @@
 # OO Rock Paper Scissors
+require 'pry'
 
 class Move
-  VALUES = %w(rock paper scissors)
+  VALUES = %w(rock paper scissors lizard spock)
 
   def initialize(value)
     @value = value
@@ -19,16 +20,40 @@ class Move
     @value == 'paper'
   end
 
+  def spock?
+    @value == 'spock'
+  end
+
+  def lizard?
+    @value == 'lizard'
+  end
+
   def >(other)
+    # binding.pry
     (rock? && other.scissors?) ||
+      (rock? && other.lizard?) ||
       (paper? && other.rock?) ||
-      (scissors? && other.paper?)
+      (scissors? && other.paper?) ||
+      (spock? && other.scissors?) ||
+      (lizard? && other.spock?) ||
+      (scissors? && other.lizard?) ||
+      (lizard? && other.paper?) ||
+      (paper? && other.spock?) ||
+      (spock? && other.rock?)
   end
 
   def <(other)
+    # binding.pry
     (rock? && other.paper?) ||
       (paper? && other.scissors?) ||
-      (scissors? && other.rock?)
+      (scissors? && other.rock?) ||
+      (scissors? && other.spock?) ||
+      (spock? && other.lizard?) ||
+      (lizard? && other.scissors?) ||
+      (lizard? && other.rock?) ||
+      (paper? && other.lizard?) ||
+      (spock? && other.paper?) ||
+      (rock? && other.spock?)
   end
 
   def to_s
@@ -60,7 +85,7 @@ class Human < Player
   def choose
     choice = nil
     loop do
-      puts 'Please choose rock, paper, or scissors:'
+      puts 'Please choose rock, paper, scissors, spock, or lizard:'
       choice = gets.chomp
       break if Move::VALUES.include? choice
       puts 'Sorry, invalid choice'
@@ -88,7 +113,7 @@ class RPSGame
   end
 
   def display_welcome_message
-    puts 'Welcome to Rock, Paper, Scissors! First player to reach 10 wins!'
+    puts 'Welcome to Rock, Paper, Scissors, Spock, Lizard! First player to reach 10 wins!'
   end
 
   def display_goodbye_message
@@ -109,6 +134,7 @@ class RPSGame
   end
 
   def display_winner
+    # binding.pry
     if human.move > computer.move
       puts "#{human.name} won!"
       keep_score("human")
@@ -118,7 +144,10 @@ class RPSGame
     else
       puts "It's a tie!"
     end
-    puts "Player score: #{human.score} Computer score: #{computer.score} "
+    puts "#{human.name}'s score: #{human.score}"
+    puts "#{computer.name}'s score: #{computer.score}"
+    puts "__________________________________________________________________"
+    puts " "
   end
 
   def play_again?
