@@ -62,11 +62,12 @@ class Move
 end
 
 class Player
-  attr_accessor :move, :name, :score
+  attr_accessor :move, :name, :score, :history
 
   def initialize
     set_name
     @score = 0
+    @history = []
   end
 end
 
@@ -74,7 +75,7 @@ class Human < Player
   def set_name
     n = nil
     loop do
-      puts "What's yo' name boy?"
+      puts "What's your name?"
       n = gets.chomp
       break unless n.empty?
       puts 'Sorry, must enter a value.'
@@ -90,7 +91,9 @@ class Human < Player
       break if Move::VALUES.include? choice
       puts 'Sorry, invalid choice'
     end
+    # binding.pry
     self.move = Move.new(choice)
+    self.history << self.move.to_s
   end
 end
 
@@ -101,6 +104,7 @@ class Computer < Player
 
   def choose
     self.move = Move.new(Move::VALUES.sample)
+    self.history << self.move.to_s
   end
 end
 
@@ -122,7 +126,9 @@ class RPSGame
 
   def display_moves
     puts "#{human.name} chose #{human.move}"
+    puts "#{human.name}'s moves: #{human.history}"
     puts "#{computer.name} chose #{computer.move}"
+    puts "#{computer.name}'s moves: #{computer.history}"
   end
 
   def keep_score(player)
@@ -186,6 +192,7 @@ class RPSGame
     break unless play_again?
   end
   display_goodbye_message
+  #clear player move-hstory
   end
 end
 
