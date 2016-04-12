@@ -1,0 +1,24 @@
+Rock paper scissors is a two-player game where each player chooses one of three possible moves: rock, paper, or scissors. The chosen moves will then be compared to see who wins, according to the following rules:
+
+- rock beats scissors
+- scissors beats paper
+- paper beats rock
+
+If the players choose the same move, then it's a tie.
+
+Major Nouns:
+  Rock, paper, scissors, player
+
+Major Verbs:
+  choose, move, compare, wins
+
+Nouns: player, move, rule
+Verbs: choose, compare
+
+Organize verbs with nouns:
+
+Player -
+  chooses
+Move -
+  is compared
+rule
