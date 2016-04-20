@@ -11,8 +11,7 @@ class Board
     reset
   end
 
-  def set_square_at(key, marker)
-    # binding.pry
+  def []=(key, marker)
     @squares[key].marker = marker
   end
 
@@ -29,6 +28,7 @@ class Board
   end
 
   def count_human_marker(squares)
+    binding.pry
     squares.collect(&:marker).count(TTTGame::HUMAN_MARKER)
   end
 
@@ -52,7 +52,6 @@ class Board
   end
 
   def draw
-    # binding.pry
     puts "     |     |"
     puts "  #{@squares[1]}  |  #{@squares[2]}  |  #{@squares[3]}"
     puts "     |     |"
@@ -121,9 +120,7 @@ class TTTGame
     display_board
   end
 
-  def display_board #(options = { clear_screen: true})
-
-  #   # clear if options[:clear_screen]
+  def display_board
     puts "You're an #{HUMAN_MARKER}. Computer is an #{COMPUTER_MARKER}"
     puts ""
     board.draw
@@ -137,12 +134,11 @@ class TTTGame
       break if board.unmarked_keys.include?(square)
       puts "Sorry, that's not a valid choice."
     end
-    # binding.pry
-    board.set_square_at(square, human.marker)
+    board[square] = human.marker
   end
 
   def computer_moves
-    board.set_square_at(board.unmarked_keys.sample, computer.marker)
+    board[board.unmarked_keys.sample] = computer.marker
   end
 
   def display_result
@@ -185,7 +181,6 @@ class TTTGame
     display_welcome_message
 
     loop do
-      # Board.draw(clear_screen: false)
       display_board
 
       loop do
