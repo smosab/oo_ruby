@@ -1,4 +1,3 @@
-require 'pry'
 class Board
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # cols
@@ -109,10 +108,6 @@ class TTTGame
   end
 
   def play
-    player_score = 0
-    computer_score = 0
-    round = 1
-
     clear
     display_welcome_message
 
@@ -125,7 +120,7 @@ class TTTGame
         clear_screen_and_display_board
       end
 
-      display_result(player_score, computer_score)
+      display_result
       break unless play_again?
       reset
       display_play_again_message
@@ -157,36 +152,15 @@ class TTTGame
     puts ""
   end
 
-  # def joinor(array, delimiter, conjunction)
-  #   new_array_string = ''
-  #   array.length.times do |n|
-  #     if array.index(array.max) == 0
-  #       new_array_string += array[n].to_s
-  #       break
-  #     elsif n != array.index(array.max)
-  #       new_array_string += array[n].to_s + delimiter
-  #     else
-  #       new_array_string += conjunction + array[n].to_s
-  #     end
-  #   end
-  #   new_array_string
-  # end
-
-  def joinor(arr, delimiter=', ', word='or')
-    arr[-1] = "#{word} #{arr.last}" if arr.size > 1
-    arr.join(delimiter)
-  end
-
   def human_moves
-    # binding.pry
-    puts "Choose a square (#{joinor(board.unmarked_keys)}): "
-    # puts "Choose a square (#{board.unmarked_keys.join(', ')}): "
+    puts "Choose a square (#{board.unmarked_keys.join(', ')}): "
     square = nil
     loop do
       square = gets.chomp.to_i
       break if board.unmarked_keys.include?(square)
       puts "Sorry, that's not a valid choice."
     end
+
     board[square] = human.marker
   end
 
@@ -204,26 +178,14 @@ class TTTGame
     end
   end
 
-  def player_score(player_score)
-    player_score += 1
-  end
-
-  def computer_score(computer_score)
-    computer_score += 1
-  end
-
-  def display_result(player_score, computer_score)
+  def display_result
     clear_screen_and_display_board
 
     case board.winning_marker
     when human.marker
       puts "You won!"
-      player_score += 1
-      puts "Your score is: #{player_score}"
     when computer.marker
       puts "Computer won!"
-      computer_score += 1
-      puts "Computer's score is: #{computer_score}"
     else
       puts "It's a tie!"
     end
