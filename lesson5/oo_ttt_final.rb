@@ -35,6 +35,17 @@ class Board
     nil
   end
 
+  def immediate_threat
+    # binding.pry
+    WINNING_LINES.each do |line|
+      squares = @squares.values_at(*line)
+      if two_identical_markers?(squares)
+        return @squares.key(squares.select {|sqr| sqr.unmarked?}.pop)
+      end
+    end
+    nil
+  end
+
   def reset
     (1..9).each { |key| @squares[key] = Square.new }
   end
@@ -54,6 +65,12 @@ class Board
     puts "     |     |"
   end
   # rubocop:enable Metrics/AbcSize
+
+  def two_identical_markers?(squares)
+    markers = squares.select(&:marked?).collect(&:marker)
+    return false if markers.size != 2
+    markers.min == markers.max
+  end
 
   private
 
@@ -162,7 +179,7 @@ class TTTGame
   private
 
   def display_welcome_message
-    puts "Welcome to Tic Tac Toe!"
+    puts "Welcome to Tic Tac Toe! First to 5 wins!"
     puts ""
   end
 
@@ -196,7 +213,14 @@ class TTTGame
   end
 
   def computer_moves
-    board[board.unmarked_keys.sample] = computer.marker
+    # binding.pry
+    square_to_block = board.immediate_threat
+    if !!square_to_block
+      # binding.pry
+      board[square_to_block] = computer.marker
+    else
+      board[board.unmarked_keys.sample] = computer.marker
+    end
   end
 
   def current_player_moves
