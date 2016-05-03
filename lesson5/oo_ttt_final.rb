@@ -1,3 +1,4 @@
+require 'pry'
 class Board
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # cols
@@ -87,9 +88,11 @@ end
 
 class Player
   attr_reader :marker
+  attr_accessor :score
 
   def initialize(marker)
     @marker = marker
+    @score = 0
   end
 end
 
@@ -107,6 +110,27 @@ class TTTGame
     @current_marker = FIRST_TO_MOVE
   end
 
+  def play_round
+    loop do
+      # binding.pry
+      current_player_moves
+      break if board.someone_won? || board.full?
+      clear_screen_and_display_board
+    end
+  end
+
+  def keep_score
+    if board.winning_marker == HUMAN_MARKER
+      human.score += 1
+      elsif board.winning_marker == COMPUTER_MARKER
+        computer.score += 1
+      end
+  end
+
+  def someone_won_five_rounds?
+    human.score >= 5 || computer.score >= 5
+  end
+
   def play
     clear
     display_welcome_message
@@ -115,12 +139,18 @@ class TTTGame
       display_board
 
       loop do
-        current_player_moves
-        break if board.someone_won? || board.full?
+        play_round
+        display_round_winner
+        sleep(1)
+        keep_score
+        # binding.pry
+        break if someone_won_five_rounds?
+        reset
         clear_screen_and_display_board
       end
 
       display_result
+      sleep(2)
       break unless play_again?
       reset
       display_play_again_message
@@ -146,7 +176,8 @@ class TTTGame
   end
 
   def display_board
-    puts "You're a #{human.marker}. Computer is a #{computer.marker}."
+    puts "You're a #{human.marker} and your score is: #{human.score}."
+    puts "Computer is a #{computer.marker}. and it's score is #{computer.score}"
     puts ""
     board.draw
     puts ""
@@ -178,16 +209,26 @@ class TTTGame
     end
   end
 
-  def display_result
+  def display_round_winner
     clear_screen_and_display_board
 
     case board.winning_marker
     when human.marker
-      puts "You won!"
+      puts "You won this round..."
     when computer.marker
-      puts "Computer won!"
+      puts "Computer won this round..."
     else
       puts "It's a tie!"
+    end
+  end
+
+    def display_result
+    clear_screen_and_display_board
+
+    if human.score >= 5
+      puts "You won all five rounds!"
+    elsif computer.score >= 5
+      puts "Computer won all five rounds!"
     end
   end
 
