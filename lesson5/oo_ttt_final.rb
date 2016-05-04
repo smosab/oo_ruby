@@ -47,7 +47,7 @@ class Board
   end
 
   def find_winning_square
-    binding.pry
+    # binding.pry
     WINNING_LINES.each do |line|
       squares = @squares.values_at(*line)
       if two_identical_computer_markers?(squares)
@@ -59,20 +59,25 @@ class Board
 
   def reset
     (1..9).each { |key| @squares[key] = Square.new }
+    # (1..9).each do |key|
+    #   # binding.pry
+    #   @squares[key] = Square.new(key)
+    # end
   end
 
   # rubocop:disable Metrics/AbcSize
   def draw
+    # binding.pry
     puts "     |     |"
-    puts "  #{@squares[1]}  |  #{@squares[2]}  |  #{@squares[3]}"
-    puts "     |     |"
-    puts "-----+-----+-----"
-    puts "     |     |"
-    puts "  #{@squares[4]}  |  #{@squares[5]}  |  #{@squares[6]}"
+    puts "  #{Square.return_square_indicator(@squares[1], @squares)}  |  #{Square.return_square_indicator(@squares[2], @squares)}  |  #{Square.return_square_indicator(@squares[3], @squares)}"
     puts "     |     |"
     puts "-----+-----+-----"
     puts "     |     |"
-    puts "  #{@squares[7]}  |  #{@squares[8]}  |  #{@squares[9]}"
+    puts "  #{Square.return_square_indicator(@squares[4], @squares)}  |  #{Square.return_square_indicator(@squares[5], @squares)}  |  #{Square.return_square_indicator(@squares[6], @squares)}"
+    puts "     |     |"
+    puts "-----+-----+-----"
+    puts "     |     |"
+    puts "  #{Square.return_square_indicator(@squares[7], @squares)}  |  #{Square.return_square_indicator(@squares[8], @squares)}  |  #{Square.return_square_indicator(@squares[9], @squares)}"
     puts "     |     |"
   end
   # rubocop:enable Metrics/AbcSize
@@ -104,6 +109,7 @@ class Square
   attr_accessor :marker
 
   def initialize(marker=INITIAL_MARKER)
+    # binding.pry
     @marker = marker
   end
 
@@ -117,6 +123,15 @@ class Square
 
   def marked?
     marker != INITIAL_MARKER
+  end
+
+  def self.return_square_indicator(square, squares)
+    # binding.pry
+    if !!square.unmarked?
+    squares.key(square)
+    else
+    square.marker
+    end
   end
 end
 
@@ -211,14 +226,20 @@ class TTTGame
 
   def display_board
     puts "You're a #{human.marker} and your score is: #{human.score}."
-    puts "Computer is a #{computer.marker}. and it's score is #{computer.score}"
+    puts "Computer is a #{computer.marker}. and its score is #{computer.score}"
     puts ""
     board.draw
     puts ""
   end
 
+  def joinor(arr, delimiter=', ', word='or')
+    arr[-1] = "#{word} #{arr.last}" if arr.size > 1
+    arr.join(delimiter)
+  end
+
   def human_moves
-    puts "Choose a square (#{board.unmarked_keys.join(', ')}): "
+    # puts "Choose a square (#{board.unmarked_keys.join(', ')}): "
+    puts "Choose a square (#{joinor(board.unmarked_keys)}): "
     square = nil
     loop do
       square = gets.chomp.to_i
