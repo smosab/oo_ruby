@@ -35,11 +35,22 @@ class Board
     nil
   end
 
-  def immediate_threat
+  def find_at_risk_square
     # binding.pry
     WINNING_LINES.each do |line|
       squares = @squares.values_at(*line)
       if two_identical_markers?(squares)
+        return @squares.key(squares.select {|sqr| sqr.unmarked?}.pop)
+      end
+    end
+    nil
+  end
+
+  def find_winning_square
+    binding.pry
+    WINNING_LINES.each do |line|
+      squares = @squares.values_at(*line)
+      if two_identical_computer_markers?(squares)
         return @squares.key(squares.select {|sqr| sqr.unmarked?}.pop)
       end
     end
@@ -68,6 +79,12 @@ class Board
 
   def two_identical_markers?(squares)
     markers = squares.select(&:marked?).collect(&:marker)
+    return false if markers.size != 2
+    markers.min == markers.max
+  end
+
+  def two_identical_computer_markers?(squares)
+    markers = squares.select {|x| x.marker == "O"}.collect(&:marker)
     return false if markers.size != 2
     markers.min == markers.max
   end
@@ -214,10 +231,13 @@ class TTTGame
 
   def computer_moves
     # binding.pry
-    square_to_block = board.immediate_threat
+    square_to_block = board.find_at_risk_square
+    winning_square = board.find_winning_square
     if !!square_to_block
       # binding.pry
       board[square_to_block] = computer.marker
+    elsif !!winning_square
+      board[winning_square] = computer.marker
     else
       board[board.unmarked_keys.sample] = computer.marker
     end
