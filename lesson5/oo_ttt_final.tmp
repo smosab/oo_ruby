@@ -166,6 +166,22 @@ class TTTGame
     @current_marker = WHO_GOES_FIRST
   end
 
+  def ask_user_to_pick_mark
+    puts "Please pick your choice of marker: X or O"
+    answer = nil
+    loop do
+      answer = gets.chomp.downcase
+      break if answer.downcase == "x" || answer.downcase == "o"
+      puts "Sorry, please enter an 'X' or 'O' "
+    end
+    HUMAN_MARKER = answer.upcase
+    case HUMAN_MARKER
+    when "X"
+      COMPUTER_MARKER = "O"
+    when "O"
+      COMPUTER_MARKER =
+  end
+
   def play_round
     loop do
       # binding.pry
@@ -194,6 +210,7 @@ class TTTGame
     loop do
       display_board
       ask_who_goes_first
+      ask_user_to_pick_mark
       loop do
 
         play_round
@@ -210,7 +227,6 @@ class TTTGame
       sleep(2)
       break unless play_again?
       reset
-      reset_player_scores
       display_play_again_message
     end
 
@@ -341,13 +357,8 @@ class TTTGame
 
   def reset
     board.reset
-    # @current_marker = FIRST_TO_MOVE
+    @current_marker = FIRST_TO_MOVE
     clear
-  end
-
-  def reset_player_scores
-    human.score = 0
-    computer.score = 0
   end
 
   def display_play_again_message
