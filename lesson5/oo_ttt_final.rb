@@ -153,7 +153,7 @@ end
 class TTTGame
   HUMAN_MARKER = "X"
   COMPUTER_MARKER = "O"
-  FIRST_TO_MOVE = HUMAN_MARKER
+  # FIRST_TO_MOVE = HUMAN_MARKER
   WHO_GOES_FIRST = "choose" # human, computer, or choose
 
   attr_reader :board, :human, :computer
@@ -164,6 +164,7 @@ class TTTGame
     @computer = Player.new(COMPUTER_MARKER)
     # @current_marker = FIRST_TO_MOVE
     @current_marker = WHO_GOES_FIRST
+    @first_to_move = nil
   end
 
   def play_round
@@ -187,6 +188,11 @@ class TTTGame
     human.score >= 5 || computer.score >= 5
   end
 
+  def reset_first_to_move
+    binding.pry
+    @current_marker = @first_to_move
+  end
+
   def play
     clear
     display_welcome_message
@@ -197,6 +203,7 @@ class TTTGame
       loop do
 
         play_round
+        reset_first_to_move
         display_round_winner
         sleep(1)
         keep_score
@@ -284,6 +291,7 @@ class TTTGame
       puts "Sorry, that's an invalid choice."
     end
     @current_marker = answer
+    @first_to_move = answer
   end
 
   def current_player_moves
