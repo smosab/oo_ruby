@@ -133,8 +133,7 @@ end
 
 class Player
   # attr_reader :marker
-  attr_accessor :marker
-  attr_accessor :score
+  attr_accessor :marker, :score, :name
 
   def initialize(marker=nil)
     @marker = marker
@@ -195,7 +194,7 @@ class TTTGame
   end
 
   def ask_who_goes_first
-    puts "Who would you like to go first? human or computer?"
+    puts "Who would you like to go first? You (human) or the PC (computer)?"
     answer = nil
     loop do
       answer = gets.chomp.downcase
@@ -221,12 +220,22 @@ class TTTGame
     end
   end
 
+  def set_player_names
+    puts "Please enter your name:"
+    human.name = gets.chomp
+    puts "Please enter the name for the computer:"
+    computer.name = gets.chomp
+  end
+
   def play
     display_welcome_message
+    set_player_names
+    ask_player_to_choose_marker
+    ask_who_goes_first
+    clear
     loop do
       display_board
-      ask_who_goes_first
-      ask_player_to_choose_marker
+
       loop do
         play_round
         display_round_winner
@@ -262,8 +271,8 @@ class TTTGame
   end
 
   def display_board
-    puts "You're a #{human.marker} and your score is: #{human.score}."
-    puts "Computer is a #{computer.marker}. and its score is #{computer.score}"
+    puts "#{human.name} is a #{human.marker} and your score is: #{human.score}."
+    puts "#{computer.name} is a #{computer.marker}. and its score is #{computer.score}"
     puts ""
     board.draw
     puts ""
@@ -314,9 +323,9 @@ class TTTGame
 
     case board.winning_marker
     when human.marker
-      puts "You won this round..."
+      puts "#{human.name} won this round..."
     when computer.marker
-      puts "Computer won this round..."
+      puts "#{computer.name} won this round..."
     else
       puts "It's a tie!"
     end
@@ -328,7 +337,7 @@ class TTTGame
     if human.score >= 5
       puts "You won all five rounds!"
     elsif computer.score >= 5
-      puts "Computer won all five rounds!"
+      puts "#{computer.name} won all five rounds!"
     end
     sleep(2)
   end
