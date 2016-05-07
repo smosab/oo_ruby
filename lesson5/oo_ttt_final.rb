@@ -65,17 +65,17 @@ class Board
   end
 
   # rubocop:disable Metrics/AbcSize
-  def draw
+  def draw(display_numbers = "no")
     puts "     |     |"
-    puts "  #{Square.return_square_indicator(@squares[1], @squares)}  |  #{Square.return_square_indicator(@squares[2], @squares)}  |  #{Square.return_square_indicator(@squares[3], @squares)}"
-    puts "     |     |"
-    puts "-----+-----+-----"
-    puts "     |     |"
-    puts "  #{Square.return_square_indicator(@squares[4], @squares)}  |  #{Square.return_square_indicator(@squares[5], @squares)}  |  #{Square.return_square_indicator(@squares[6], @squares)}"
+    puts "  #{Square.return_square_indicator(@squares[1], @squares, display_numbers)}  |  #{Square.return_square_indicator(@squares[2], @squares, display_numbers)}  |  #{Square.return_square_indicator(@squares[3], @squares, display_numbers)}"
     puts "     |     |"
     puts "-----+-----+-----"
     puts "     |     |"
-    puts "  #{Square.return_square_indicator(@squares[7], @squares)}  |  #{Square.return_square_indicator(@squares[8], @squares)}  |  #{Square.return_square_indicator(@squares[9], @squares)}"
+    puts "  #{Square.return_square_indicator(@squares[4], @squares, display_numbers)}  |  #{Square.return_square_indicator(@squares[5], @squares, display_numbers)}  |  #{Square.return_square_indicator(@squares[6], @squares, display_numbers)}"
+    puts "     |     |"
+    puts "-----+-----+-----"
+    puts "     |     |"
+    puts "  #{Square.return_square_indicator(@squares[7], @squares, display_numbers)}  |  #{Square.return_square_indicator(@squares[8], @squares, display_numbers)}  |  #{Square.return_square_indicator(@squares[9], @squares, display_numbers)}"
     puts "     |     |"
   end
   # rubocop:enable Metrics/AbcSize
@@ -122,8 +122,8 @@ class Square
     marker != INITIAL_MARKER
   end
 
-  def self.return_square_indicator(square, squares)
-    if !!square.unmarked?
+  def self.return_square_indicator(square, squares, display_numbers)
+    if square.unmarked? && display_numbers == "yes"
       squares.key(square)
     else
       square.marker
@@ -142,7 +142,9 @@ class Player
 end
 
 class TTTGame
-  WHO_GOES_FIRST = "choose" # human, computer, or choose
+  WHO_GOES_FIRST = "choose" # human, computer or choose (default is computer)
+  DEFAULT_HUMAN_NAMES = ["Joe Shmoe", "TicTacToeMoe", "Tupac", "Elvis", "Peyton Manning", "Mr. Rodgers", "Jane Doe"]
+  DEFAULT_COMPUTER_NAMES = ["CP30", "Lion Force Voltron, Defender of the Universe", "T-1000", "Johnny 5", "Bender", "R2-D2"]
 
   attr_reader :board, :human, :computer
 
@@ -161,6 +163,8 @@ class TTTGame
       clear_screen_and_display_board
     end
     reset_first_to_move
+    display_round_winner
+    keep_score
   end
 
   def keep_score
@@ -193,19 +197,41 @@ class TTTGame
     end
   end
 
-  def ask_who_goes_first
-    puts "Who would you like to go first? You (human) or the PC (computer)?"
+  def choose_player
+    puts "Do you want to go first? (y/n)"
     answer = nil
     loop do
       answer = gets.chomp.downcase
-      break if answer == "human" || answer == "computer"
-      puts "Sorry, that's an invalid choice."
+      break if answer[0] == "y" || answer == "n"
+      puts "Sorry, that's not a valid choice."
     end
-    @current_marker = answer
-    @first_to_move = answer
+    assign_markers_frist_to_move(answer)
+  end
+
+  def ask_who_goes_first
+    if WHO_GOES_FIRST == "choose"
+      choose_player
+    elsif WHO_GOES_FIRST == "human"
+      answer = "human"
+      assign_markers_frist_to_move(answer)
+    else
+      answer = "computer"
+      assign_markers_frist_to_move(answer)
+    end
+  end
+
+  def assign_markers_frist_to_move(answer)
+    case answer
+    when 'y'
+      @current_marker = "human"
+    when 'n'
+      @current_marker = "computer"
+    end
+    @first_to_move = @current_marker
   end
 
   def ask_player_to_choose_marker
+    binding.pry
     if @first_to_move == "human"
       puts "Please pick your choice of marker: X or O"
       answer = nil
@@ -220,34 +246,60 @@ class TTTGame
     end
   end
 
+  def set_default_human_name
+    human.name = DEFAULT_HUMAN_NAMES.sample
+    puts "Your name will be..."
+    sleep(1)
+    puts "#{human.name}!"
+  end
+
+  def set_default_computer_name
+    computer.name = DEFAULT_COMPUTER_NAMES.sample
+    puts "The computer's name will be..."
+    sleep(1)
+    puts "#{computer.name}!"
+  end
+
   def set_player_names
-    puts "Please enter your name:"
-    human.name = gets.chomp
-    puts "Please enter the name for the computer:"
-    computer.name = gets.chomp
+    puts "Please enter your name: (hit enter for a random name)"
+    loop do
+      human.name = gets.chomp
+      # binding.pry
+      break unless /[^a-zA-z0-9]/ === human.name
+      puts "Sorry, please enter a valid name or press enter for a random one."
+    end
+    set_default_human_name if human.name.empty?
+    puts "Please enter the name for the computer: (hit enter for a random name)"
+    loop do
+      computer.name = gets.chomp
+      # binding.pry
+      break unless /[^a-zA-z0-9]/ === computer.name
+      puts "Sorry, please enter a valid name or press enter for a random one."
+    end
+    set_default_computer_name if computer.name.empty?
+  end
+
+  def display_welcome_message_and_set_variables
+    display_welcome_message
+    set_player_names
+    ask_who_goes_first
+    ask_player_to_choose_marker
+    clear
   end
 
   def play
-    display_welcome_message
-    set_player_names
-    ask_player_to_choose_marker
-    ask_who_goes_first
-    clear
+    display_welcome_message_and_set_variables
     loop do
-      display_board
-
+      display_board_with_numbers
       loop do
         play_round
-        display_round_winner
-        keep_score
         break if someone_won_five_rounds?
         reset
-        clear_screen_and_display_board
+        clear_screen_and_display_board_with_numbers
       end
       display_result
       break unless play_again?
-      reset
-      reset_player_scores
+      reset_board_and_player_scores
       display_play_again_message
     end
     display_goodbye_message
@@ -270,12 +322,20 @@ class TTTGame
     display_board
   end
 
-  def display_board
+  def display_board(display_numbers = "no")
     puts "#{human.name} is a #{human.marker} and your score is: #{human.score}."
     puts "#{computer.name} is a #{computer.marker}. and its score is #{computer.score}"
     puts ""
-    board.draw
+    board.draw(display_numbers)
     puts ""
+  end
+
+  def display_board_with_numbers
+    display_board("yes")
+  end
+
+  def clear_screen_and_display_board_with_numbers
+    display_board_with_numbers
   end
 
   def joinor(arr, delimiter=', ', word='or')
@@ -294,17 +354,39 @@ class TTTGame
     board[square] = human.marker
   end
 
-  def computer_moves
-    square_to_block = board.find_at_risk_square
+  def play_offense(winning_square)
+    board[winning_square] = computer.marker
+  end
+
+  def play_defense(square_to_block)
+    board[square_to_block] = computer.marker
+  end
+
+  def play_square_five
+    board[5] = computer.marker
+  end
+
+  def play_offense_or_defense
     winning_square = board.find_winning_square
+    square_to_block = board.find_at_risk_square
     if !!winning_square
-      board[winning_square] = computer.marker
+      return winning_square
     elsif !!square_to_block
-      board[square_to_block] = computer.marker
-    elsif !!board.square_five_unmarked?
-      board[5] = computer.marker
+      return square_to_block
+    end
+  end
+
+  def play_random_square
+    board[board.unmarked_keys.sample] = computer.marker
+  end
+
+  def computer_moves
+    if board.square_five_unmarked?
+      play_square_five
+    elsif !!play_offense_or_defense
+      board[play_offense_or_defense] = computer.marker
     else
-      board[board.unmarked_keys.sample] = computer.marker
+      play_random_square
     end
   end
 
@@ -363,7 +445,8 @@ class TTTGame
     clear
   end
 
-  def reset_player_scores
+  def reset_board_and_player_scores
+    reset
     human.score = 0
     computer.score = 0
   end
@@ -371,6 +454,7 @@ class TTTGame
   def display_play_again_message
     puts "Let's play again!"
     puts ""
+    sleep(1)
   end
 end
 
