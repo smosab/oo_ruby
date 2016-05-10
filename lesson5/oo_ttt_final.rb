@@ -1,4 +1,5 @@
 require 'pry'
+
 class Board
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # cols
@@ -6,6 +7,8 @@ class Board
 
   def initialize
     @squares = {}
+    @human_marker = nil
+    @computer_marker = nil
     reset
   end
 
@@ -29,20 +32,22 @@ class Board
     !!winning_marker
   end
 
-  def winning_marker
+  def winning_marker # three identical markers
     WINNING_LINES.each do |line|
       squares = @squares.values_at(*line)
-      if three_identical_markers?(squares)
+      if identical_markers?(squares, 3)
         return squares.first.marker
       end
     end
     nil
   end
 
-  def find_at_risk_square
+  def find_at_risk_square # two identical markers
     WINNING_LINES.each do |line|
-      squares = @squares.values_at(*line)
-      if two_identical_markers?(squares)
+      # binding.pry
+      squares = @squares.values_at(*line).select {|obj| obj.marker == @human_marker || obj.marker == " " }
+      # squares = @squares.values_at(*line)
+      if identical_markers?(squares, 2)
         # return @squares.key(squares.select { |sqr| sqr.unmarked? }.pop)
         return @squares.key(squares.select(&:unmarked?).pop)
       end
@@ -51,9 +56,11 @@ class Board
   end
 
   def find_winning_square
+    # binding.pry
     WINNING_LINES.each do |line|
-      squares = @squares.values_at(*line)
-      if two_identical_computer_markers?(squares)
+      squares = @squares.values_at(*line).select {|obj| obj.marker == @computer_marker || obj.marker == " " }
+      # squares = @squares.values_at(*line)
+      if identical_markers?(squares, 2)
         return @squares.key(squares.select(&:unmarked?).pop)
       end
     end
@@ -80,23 +87,18 @@ class Board
   end
   # rubocop:enable Metrics/AbcSize
 
-  def two_identical_markers?(squares)
-    markers = squares.select(&:marked?).collect(&:marker)
-    return false if markers.size != 2
-    markers.min == markers.max
-  end
-
-  def two_identical_computer_markers?(squares)
-    markers = squares.select { |x| x.marker == "O" }.collect(&:marker)
-    return false if markers.size != 2
-    markers.min == markers.max
+  def get_players_markers(human, computer)
+    @human_marker = human.marker
+    @computer_marker = computer.marker
   end
 
   private
 
-  def three_identical_markers?(squares)
+  def identical_markers?(squares, number_of_markers)
+    # binding.pry
+    # markers = squares.select {|obj| obj.marker == player_marker}.collect(&:marker)
     markers = squares.select(&:marked?).collect(&:marker)
-    return false if markers.size != 3
+    return false if markers.size != number_of_markers
     markers.min == markers.max
   end
 end
@@ -156,6 +158,10 @@ class TTTGame
     @first_to_move = nil
   end
 
+  def update_board_with_players_markers(human, computer)
+    board.get_players_markers(human, computer)
+  end
+
   def play_round
     loop do
       current_player_moves
@@ -186,6 +192,7 @@ class TTTGame
   def set_markers
     human.marker = "X"
     computer.marker = "O"
+    update_board_with_players_markers(human, computer)
   end
 
   def set_computer_marker
@@ -195,6 +202,7 @@ class TTTGame
     when "O"
       computer.marker = "X"
     end
+    update_board_with_players_markers(human, computer)
   end
 
   def choose_player
@@ -369,6 +377,7 @@ class TTTGame
   def play_offense_or_defense
     winning_square = board.find_winning_square
     square_to_block = board.find_at_risk_square
+    # binding.pry
     if !!winning_square
       return winning_square
     elsif !!square_to_block
