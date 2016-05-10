@@ -1,5 +1,3 @@
-require 'pry'
-
 class Board
   WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
                   [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # cols
@@ -44,11 +42,8 @@ class Board
 
   def find_at_risk_square # two identical markers
     WINNING_LINES.each do |line|
-      # binding.pry
-      squares = @squares.values_at(*line).select {|obj| obj.marker == @human_marker || obj.marker == " " }
-      # squares = @squares.values_at(*line)
+      squares = @squares.values_at(*line).select { |obj| obj.marker == @human_marker || obj.marker == " " }
       if identical_markers?(squares, 2)
-        # return @squares.key(squares.select { |sqr| sqr.unmarked? }.pop)
         return @squares.key(squares.select(&:unmarked?).pop)
       end
     end
@@ -56,10 +51,8 @@ class Board
   end
 
   def find_winning_square
-    # binding.pry
     WINNING_LINES.each do |line|
-      squares = @squares.values_at(*line).select {|obj| obj.marker == @computer_marker || obj.marker == " " }
-      # squares = @squares.values_at(*line)
+      squares = @squares.values_at(*line).select { |obj| obj.marker == @computer_marker || obj.marker == " " }
       if identical_markers?(squares, 2)
         return @squares.key(squares.select(&:unmarked?).pop)
       end
@@ -95,8 +88,6 @@ class Board
   private
 
   def identical_markers?(squares, number_of_markers)
-    # binding.pry
-    # markers = squares.select {|obj| obj.marker == player_marker}.collect(&:marker)
     markers = squares.select(&:marked?).collect(&:marker)
     return false if markers.size != number_of_markers
     markers.min == markers.max
@@ -239,7 +230,6 @@ class TTTGame
   end
 
   def ask_player_to_choose_marker
-    # binding.pry
     if @first_to_move == "human"
       puts "Please pick your choice of marker: X or O"
       answer = nil
@@ -268,23 +258,29 @@ class TTTGame
     puts "#{computer.name}!"
   end
 
-  def set_player_names
+  def set_human_name
     puts "Please enter your name: (hit enter for a random name)"
     loop do
       human.name = gets.chomp
-      # binding.pry
-      break unless /[^a-zA-z0-9]/ === human.name
+      break unless human.name =~ /[^a-zA-z0-9]/
       puts "Sorry, please enter a valid name or press enter for a random one."
     end
     set_default_human_name if human.name.empty?
+  end
+
+  def set_computer_name
     puts "Please enter the name for the computer: (hit enter for a random name)"
     loop do
       computer.name = gets.chomp
-      # binding.pry
-      break unless /[^a-zA-z0-9]/ === computer.name
+      break unless computer.name =~ /[^a-zA-z0-9]/
       puts "Sorry, please enter a valid name or press enter for a random one."
     end
     set_default_computer_name if computer.name.empty?
+  end
+
+  def set_player_names
+    set_human_name
+    set_computer_name
   end
 
   def display_welcome_message_and_set_variables
@@ -377,7 +373,6 @@ class TTTGame
   def play_offense_or_defense
     winning_square = board.find_winning_square
     square_to_block = board.find_at_risk_square
-    # binding.pry
     if !!winning_square
       return winning_square
     elsif !!square_to_block
