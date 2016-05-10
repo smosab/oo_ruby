@@ -67,15 +67,15 @@ class Board
   # rubocop:disable Metrics/AbcSize
   def draw(display_numbers = "no")
     puts "     |     |"
-    puts "  #{Square.return_square_indicator(@squares[1], @squares, display_numbers)}  |  #{Square.return_square_indicator(@squares[2], @squares, display_numbers)}  |  #{Square.return_square_indicator(@squares[3], @squares, display_numbers)}"
+    puts "  #{Square.square_indicator(@squares[1], @squares, display_numbers)}  |  #{Square.square_indicator(@squares[2], @squares, display_numbers)}  |  #{Square.square_indicator(@squares[3], @squares, display_numbers)}"
     puts "     |     |"
     puts "-----+-----+-----"
     puts "     |     |"
-    puts "  #{Square.return_square_indicator(@squares[4], @squares, display_numbers)}  |  #{Square.return_square_indicator(@squares[5], @squares, display_numbers)}  |  #{Square.return_square_indicator(@squares[6], @squares, display_numbers)}"
+    puts "  #{Square.square_indicator(@squares[4], @squares, display_numbers)}  |  #{Square.square_indicator(@squares[5], @squares, display_numbers)}  |  #{Square.square_indicator(@squares[6], @squares, display_numbers)}"
     puts "     |     |"
     puts "-----+-----+-----"
     puts "     |     |"
-    puts "  #{Square.return_square_indicator(@squares[7], @squares, display_numbers)}  |  #{Square.return_square_indicator(@squares[8], @squares, display_numbers)}  |  #{Square.return_square_indicator(@squares[9], @squares, display_numbers)}"
+    puts "  #{Square.square_indicator(@squares[7], @squares, display_numbers)}  |  #{Square.square_indicator(@squares[8], @squares, display_numbers)}  |  #{Square.square_indicator(@squares[9], @squares, display_numbers)}"
     puts "     |     |"
   end
   # rubocop:enable Metrics/AbcSize
@@ -122,7 +122,7 @@ class Square
     marker != INITIAL_MARKER
   end
 
-  def self.return_square_indicator(square, squares, display_numbers)
+  def self.square_indicator(square, squares, display_numbers)
     if square.unmarked? && display_numbers == "yes"
       squares.key(square)
     else
@@ -231,7 +231,7 @@ class TTTGame
   end
 
   def ask_player_to_choose_marker
-    binding.pry
+    # binding.pry
     if @first_to_move == "human"
       puts "Please pick your choice of marker: X or O"
       answer = nil
@@ -323,7 +323,7 @@ class TTTGame
   end
 
   def display_board(display_numbers = "no")
-    puts "#{human.name} is a #{human.marker} and your score is: #{human.score}."
+    puts "#{human.name} you're an #{human.marker} and your score is: #{human.score}."
     puts "#{computer.name} is a #{computer.marker}. and its score is #{computer.score}"
     puts ""
     board.draw(display_numbers)
