@@ -40,19 +40,9 @@ class Board
     nil
   end
 
-  def find_at_risk_square # two identical markers
+  def find_winning_or_at_risk_square
     WINNING_LINES.each do |line|
-      squares = @squares.values_at(*line).select { |obj| obj.marker == @human_marker || obj.marker == " " }
-      if identical_markers?(squares, 2)
-        return @squares.key(squares.select(&:unmarked?).pop)
-      end
-    end
-    nil
-  end
-
-  def find_winning_square
-    WINNING_LINES.each do |line|
-      squares = @squares.values_at(*line).select { |obj| obj.marker == @computer_marker || obj.marker == " " }
+      squares = @squares.values_at(*line)
       if identical_markers?(squares, 2)
         return @squares.key(squares.select(&:unmarked?).pop)
       end
@@ -357,40 +347,30 @@ class TTTGame
     board[square] = human.marker
   end
 
-  def play_offense(winning_square)
-    board[winning_square] = computer.marker
-  end
-
-  def play_defense(square_to_block)
-    board[square_to_block] = computer.marker
+  def computer_moves
+    if board.square_five_unmarked?
+      play_square_five
+    elsif board.find_winning_or_at_risk_square
+      play_offense
+    else
+      play_random_square
+    end
   end
 
   def play_square_five
     board[5] = computer.marker
   end
 
-  def play_offense_or_defense
-    winning_square = board.find_winning_square
-    square_to_block = board.find_at_risk_square
-    if winning_square
-      return winning_square
-    elsif square_to_block
-      return square_to_block
-    end
+  def play_offense
+    board[board.find_winning_or_at_risk_square] = computer.marker
+  end
+
+  def play_defense
+    board[board.find_at_risk_square] = computer.marker
   end
 
   def play_random_square
     board[board.unmarked_keys.sample] = computer.marker
-  end
-
-  def computer_moves
-    if board.square_five_unmarked?
-      play_square_five
-    elsif play_offense_or_defense
-      board[play_offense_or_defense] = computer.marker
-    else
-      play_random_square
-    end
   end
 
   def current_player_moves
@@ -405,7 +385,6 @@ class TTTGame
 
   def display_round_winner
     clear_screen_and_display_board
-
     case board.winning_marker
     when human.marker
       puts "#{human.name} won this round..."
