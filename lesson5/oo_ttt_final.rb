@@ -80,7 +80,7 @@ class Board
   end
   # rubocop:enable Metrics/AbcSize
 
-  def get_players_markers(human, computer)
+  def set_players_markers(human, computer)
     @human_marker = human.marker
     @computer_marker = computer.marker
   end
@@ -125,7 +125,6 @@ class Square
 end
 
 class Player
-  # attr_reader :marker
   attr_accessor :marker, :score, :name
 
   def initialize(marker=nil)
@@ -150,7 +149,7 @@ class TTTGame
   end
 
   def update_board_with_players_markers(human, computer)
-    board.get_players_markers(human, computer)
+    board.set_players_markers(human, computer)
   end
 
   def play_round
@@ -204,7 +203,7 @@ class TTTGame
       break if answer[0] == "y" || answer == "n"
       puts "Sorry, that's not a valid choice."
     end
-    assign_markers_frist_to_move(answer)
+    assign_markers_first_to_move(answer)
   end
 
   def ask_who_goes_first
@@ -212,14 +211,14 @@ class TTTGame
       choose_player
     elsif WHO_GOES_FIRST == "human"
       answer = "human"
-      assign_markers_frist_to_move(answer)
+      assign_markers_first_to_move(answer)
     else
       answer = "computer"
-      assign_markers_frist_to_move(answer)
+      assign_markers_first_to_move(answer)
     end
   end
 
-  def assign_markers_frist_to_move(answer)
+  def assign_markers_first_to_move(answer)
     case answer
     when 'y'
       @current_marker = "human"
@@ -373,9 +372,9 @@ class TTTGame
   def play_offense_or_defense
     winning_square = board.find_winning_square
     square_to_block = board.find_at_risk_square
-    if !!winning_square
+    if winning_square
       return winning_square
-    elsif !!square_to_block
+    elsif square_to_block
       return square_to_block
     end
   end
@@ -387,7 +386,7 @@ class TTTGame
   def computer_moves
     if board.square_five_unmarked?
       play_square_five
-    elsif !!play_offense_or_defense
+    elsif play_offense_or_defense
       board[play_offense_or_defense] = computer.marker
     else
       play_random_square
