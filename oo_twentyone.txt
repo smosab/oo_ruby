@@ -1,0 +1,25 @@
+1. Write a description of the problem and extract major nouns and verbs.
+
+    Twenty one is a game played with a 52 card deck consisting of the 4 suits (hearts, diamonds, clubs, and spades), and 13 values (2, 3, 4, 5, 6, 7, 8, 9, 10, jack, queen, king, ace).
+    The goal of Twenty-One is to try to get as close to 21 as possible, without going over. If you go over 21, it's a "bust" and you lose.
+    Setup: The game consists of a "dealer" and a "player". Both participants are initially dealt 2 cards. The player can see their 2 cards, but can only see one of the dealer's cards.
+    
+2. Make an initial guess at organizing the verbs into nouns and do a spike to explore the problem with temporary code.
+
+    Player
+     Hit
+     stay
+     bust
+     win
+     
+    Dealer
+     hit
+     deals
+     bust
+     win
+    
+    Card
+     displayed
+     stored
+
+3. Optional - when you have a better idea of the problem, model your thoughts into CRC cards.
