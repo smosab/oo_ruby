@@ -1,14 +1,6 @@
 require 'pry'
 
 class Participant
-  def hit(deck, participants_cards)
-
-  end
-
-  def stay
-
-  end
-
   def clear_hands(participant)
     participant.cards = []
   end
@@ -30,7 +22,17 @@ class Participant
         sum += value.to_i
       end
     end
+
+    correct_for_aces(sum)
+
     sum
+  end
+
+  def correct_for_aces(sum)
+    cards.select { |c| c[1] == 'A' }.count.times do
+      break if sum <= 21
+      sum -= 10
+    end
   end
 
   def self.<<(deck, participants_cards)
@@ -47,7 +49,6 @@ class Player < Participant
 end
 
 class Dealer < Participant
-
   attr_accessor :cards
 
   def initialize
@@ -77,14 +78,7 @@ class Deck
   end
 end
 
-class Card
-  def initialize
-
-  end
-end
-
 class Game
-
   attr_accessor :player, :dealer
   attr_reader :deck
 
@@ -99,44 +93,63 @@ class Game
   end
 
   def start
+    display_welcome_message
     loop do
-      display_welcome_message
       deal_cards(player, dealer, deck)
-      show_cards("yes")
+      show_cards
       player_turn
       dealer_turn unless player.busted?(player.cards)
+      show_cards("no")
       show_result
       initialize
-    break unless play_again?
+      break unless play_again?
     end
   end
 
   def display_welcome_message
     system 'clear'
     prompt "Welcome to Twenty-One!"
-    sleep(2)
+    sleep(1)
   end
 
   def deal_cards(player, dealer, deck)
+    prompt "Dealing cards..."
+    sleep(1)
     dealer.deal(player, dealer, deck)
   end
 
+  def joinor(arr, delimiter=', ', word='or')
+    arr[-1] = "#{word} #{arr.last}" if arr.size > 1
+    arr.join(delimiter)
+  end
+
+  def show_player_or_dealer_cards(participant)
+    participant_cards_to_display = ""
+
+    participant.cards.each do |c|
+      # binding.pry
+      if participant.cards.index(c) != participant.cards.size - 1
+        participant_cards_to_display += c.join + " | "
+      else
+        participant_cards_to_display += c.join
+      end
+    end
+    participant_cards_to_display
+  end
+
+  def show_player_cards
+    prompt "Your cards: #{show_player_or_dealer_cards(player)} (total value: #{player.total(player.cards)})"
+  end
+
   def show_cards(show_initial_cards = "yes")
-    system 'clear'
-    playerscards_to_display = ""
-    dealerscards_to_display = ""
-    player.cards.each {|c| playerscards_to_display +=  c.join + " | "}
     if show_initial_cards == "no"
       system 'clear'
-      prompt "Your cards: #{playerscards_to_display} (total value: #{player.total(player.cards)})"
-      dealer.cards.each {|c| dealerscards_to_display +=  c.join + " | "}
-      prompt "Dealers cards: #{dealerscards_to_display} (total value: #{dealer.total(dealer.cards)})"
+      show_player_cards
+      prompt "Dealers cards: #{show_player_or_dealer_cards(dealer)} (total value: #{dealer.total(dealer.cards)})"
     else
-    prompt "Dealing cards..."
-    sleep(1)
-    system 'clear'
-    prompt "Your cards: #{playerscards_to_display} (total value: #{player.total(player.cards)})"
-    prompt "Dealers cards: #{dealer.cards[0].join} | \u{1F0A0}"
+      system 'clear'
+      show_player_cards
+      prompt "Dealers cards: #{dealer.cards[0].join} | \u{1F0A0}"
     end
   end
 
@@ -144,18 +157,18 @@ class Game
     loop do
       if hit_or_stay == 'h'
         player.cards << deck.pop
-        show_cards("no")
+        show_cards("yes")
       else break
       end
       break if player.busted?(player.cards)
     end
 
     if player.busted?(player.cards)
-      prompt "You busted! Dealer wins!"
+      prompt "You busted!"
       sleep(2)
     else
       puts "You chose to stay!"
-      sleep(2)
+      sleep(1)
     end
   end
 
@@ -172,11 +185,11 @@ class Game
 
   def dealer_turn
     prompt "Dealers turn!"
-    sleep(2)
+    sleep(1)
     loop do
       break unless dealer.total(dealer.cards) <= 17
       prompt "Dealer hits!"
-      sleep(2)
+      sleep(1)
       dealer.cards << deck.pop
       show_cards("no")
       break if dealer.busted?(dealer.cards)
@@ -184,21 +197,21 @@ class Game
 
     if dealer.busted?(dealer.cards)
       show_cards("no")
-      prompt "Dealer busted! You win!"
+      prompt "Dealer busted!"
       sleep(2)
-      else
+    else
       show_cards("no")
       prompt "Dealer stays..."
-      sleep(2)
+      sleep(1)
     end
   end
 
   def show_result
     total_of_players_cards = player.total(player.cards)
     total_of_dealers_cards = dealer.total(dealer.cards)
-    if !player.busted?(player.cards) && total_of_players_cards > total_of_dealers_cards
+    if !player.busted?(player.cards) && (total_of_players_cards > total_of_dealers_cards || dealer.busted?(dealer.cards))
       prompt "You win!"
-    elsif !dealer.busted?(dealer.cards) && total_of_dealers_cards > total_of_players_cards
+    elsif !dealer.busted?(dealer.cards) && (total_of_dealers_cards > total_of_players_cards || player.busted?(player.cards))
       prompt "Dealer wins!"
     elsif total_of_players_cards == total_of_dealers_cards
       prompt "It's a push(draw)!"
